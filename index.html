@@ -1,0 +1,114 @@
+
+<html>
+    <head>
+        <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.0/axios.min.js"></script>
+        <style>
+            body {
+                font-family: verdana;
+            }
+            .container {
+                display: flex;
+                border: solid black 1px;
+                margin: 1em;
+                font-weight: bold;
+            }
+            #dessert-item {
+                font-weight: normal;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id='root'></div>
+        <script type='text/babel'>
+        
+        const Dessert = (props) => {
+            const dessert = props.dessert;
+            return (
+                <li id="dessert-name">
+                    {dessert.name}
+                </li>
+            );
+        };
+
+        const Location = (props) => {
+            const location = props.location;
+            return (
+                <div class="container">
+                    {location.name} ({location.address})
+                    <ul id="dessert-item">
+                        <p>In Stock: </p>
+                        {location.desserts.map((dessert) => {
+                            return (
+                                <Dessert dessert={dessert} />
+                            );
+                        })}
+                    </ul>
+                </div>
+            );
+        };
+
+        class App extends React.Component{
+            constructor() {
+                super();
+                this.state = {
+                    locations: [],
+                    desserts: [], 
+                }
+            }
+
+            async componentDidMount() {
+                const response = await axios.get('/api/locations');
+                const locations = response.data;
+
+                this.setState({ locations });
+            }
+        
+        /*
+            async selectLocation(locationId) {
+                const response = await axios.get('/api/locations/:id')
+                const location = location.data;
+                
+                this.setState({ clickedLocation: location })
+             }
+             
+
+            async create(){
+                const response = await axios.post('/api/locations');
+                const dessert = response.data;
+                const desserts = [...this.state.desserts, dessert];
+                console.log('DESSERT,', dessert)
+            }
+        */
+
+            render() {
+                const locations = this.state.locations;
+                return (
+                    <div>
+                        <h1>Local Bakeshop Inventory Dashboard</h1>
+                        <h3> Locations ({ locations.length }) </h3>
+                        <button onClick={ this.create }> Create </button>
+
+                        <div>
+                        
+                            {locations.map( (location) => {
+                                    return (
+                                        <Location location={location} />
+                                    );
+                                })
+                            }
+                        
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        const root = document.querySelector('#root');
+        ReactDOM.render(<App />, root);
+    </script>
+    </body>
+</html>
